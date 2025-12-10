@@ -1,6 +1,8 @@
-import { Bell, LogOut } from 'lucide-react'
+import { Bell, LogOut, Moon, Sun } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
+import { useTheme } from '@/app/theme-provider'
+import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/routes'
 import { useAuthStore } from '@/store/auth-store'
 
@@ -9,28 +11,36 @@ export function TopBar() {
   const signOut = useAuthStore((state) => state.signOut)
   const navigate = useNavigate()
 
+  const { theme, toggleTheme } = useTheme()
+
   const handleLogout = () => {
     signOut()
     navigate(ROUTES.signin)
   }
 
   return (
-    <header className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 text-white">
+    <header className="flex items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-4 text-midnight shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-white">
       <div>
-        <p className="text-sm text-white/60">Bem-vindo de volta</p>
+        <p className="text-sm text-slate-500 dark:text-white/60">Bem-vindo de volta</p>
         <p className="text-lg font-semibold">{user?.email ?? 'Estudante'}</p>
       </div>
-      <div className="flex items-center gap-4">
-        <button className="rounded-full border border-white/20 bg-white/10 p-2" aria-label="Notificações">
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+        <button className="rounded-full border border-slate-200 bg-white/60 p-2 text-slate-600 transition hover:bg-white dark:border-white/20 dark:bg-white/10 dark:text-white" aria-label="Notificações">
           <Bell className="h-5 w-5" />
         </button>
-        <button
-          onClick={handleLogout}
-          className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold transition hover:bg-white/25"
-        >
+        <Button onClick={handleLogout} variant="secondary" size="sm" className="rounded-full px-5">
           <LogOut className="h-4 w-4" />
           Sair
-        </button>
+        </Button>
       </div>
     </header>
   )

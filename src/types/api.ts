@@ -26,7 +26,7 @@ export type SummaryDto = {
   summary_text: string
   level: string
   created_at: string
-  metadata?: Record<string, unknown> | null
+  metadata?: SummaryMetadata | null
 }
 
 export type FlashcardDto = {
@@ -38,3 +38,9 @@ export type FlashcardDto = {
 }
 
 export type UploadResponse = DocumentDto & { text_preview?: string | null }
+
+export type SummaryMetadata = {
+  bullets?: string[]
+  questions?: string[]
+  flashcards?: Array<{ question: string; answer: string }>
+}
