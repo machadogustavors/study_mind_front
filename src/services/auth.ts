@@ -6,7 +6,20 @@ export type Credentials = {
   password: string
 }
 
-export async function signUp(payload: Credentials) {
+export type SignUpPayload = {
+  email: string
+  password: string
+  full_name: string
+  cpf?: string
+  phone?: string
+  street?: string
+  city?: string
+  state?: string
+  postal_code?: string
+  country?: string
+}
+
+export async function signUp(payload: SignUpPayload) {
   const { data } = await api.post<AuthToken>('/auth/signup', payload)
   return data
 }

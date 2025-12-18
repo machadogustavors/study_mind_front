@@ -55,9 +55,8 @@ export function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Preferências de estudo</CardTitle>
-          <CardDescription>Essas configurações são armazenadas localmente até o backend suportar edição.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <label className="block text-sm font-semibold text-slate-600 dark:text-white/80">
             Matéria de foco
             <Input

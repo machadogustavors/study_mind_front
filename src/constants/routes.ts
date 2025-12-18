@@ -10,4 +10,5 @@ export const ROUTES = {
   flashcards: '/app/flashcards',
   progress: '/app/progress',
   settings: '/app/settings',
+  plans: '/app/plans',
 }

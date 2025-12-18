@@ -86,11 +86,10 @@ export function UploadCenterPage() {
 
   return (
     <PageTransition>
-      <section className="space-y-8">
+      <section className="space-y-4">
       <header className="space-y-2">
         <p className="text-sm uppercase tracking-widest text-slate-500 dark:text-white/60">Upload Center</p>
         <h1 className="text-3xl font-semibold text-midnight dark:text-white">Envie PDFs, imagens ou texto</h1>
-        <p className="text-slate-500 dark:text-white/70">O StudyMind extrai texto, gera resumos e flashcards automaticamente.</p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">

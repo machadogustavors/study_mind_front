@@ -8,6 +8,7 @@ import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { FlashcardsPage } from '@/pages/flashcards/FlashcardsPage'
 import { ProgressPage } from '@/pages/progress/ProgressPage'
 import { SettingsPage } from '@/pages/settings/SettingsPage'
+import { PlansPage } from '@/pages/settings/PlansPage'
 import { StudyPlanPage } from '@/pages/study-plan/StudyPlanPage'
 import { UploadCenterPage } from '@/pages/upload/UploadCenterPage'
 import { SignInPage } from '@/pages/auth/SignInPage'
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
           { path: 'flashcards', element: <FlashcardsPage /> },
           { path: 'progress', element: <ProgressPage /> },
           { path: 'settings', element: <SettingsPage /> },
+          { path: 'plans', element: <PlansPage /> },
         ],
       },
     ],

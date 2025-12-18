@@ -14,7 +14,7 @@ const links = [
 
 export function SidebarNav() {
   return (
-    <aside className="hidden w-64 flex-col justify-between border-r border-black/5 bg-white p-6 text-midnight dark:border-white/10 dark:bg-white/5 dark:text-white lg:flex">
+    <aside className="hidden w-128 flex-col justify-between border-r border-black/5 bg-white p-6 text-midnight dark:border-white/10 dark:bg-white/5 dark:text-white lg:flex">
       <div>
         <div className="mb-10 flex items-center gap-2 text-lg font-semibold">
           <BookOpenCheck className="h-6 w-6 text-brand-500" />
