@@ -43,6 +43,8 @@ export type Subscription = {
   id: number
   user_id: number
   plan_id: number
+  plan_name: string
+  plan_tier: 'free' | 'basic' | 'pro' | 'premium'
   status: 'active' | 'canceled' | 'past_due' | 'trialing'
   billing_cycle: 'monthly' | 'yearly'
   current_period_start: string
@@ -52,26 +54,27 @@ export type Subscription = {
   stripe_customer_id: string | null
   created_at: string
   updated_at: string
+  usage?: UsageStats
 }
 
 export type UsageStats = {
-  user_id: string
-  period_start: string
-  period_end: string
   documents_uploaded: number
+  documents_limit: number | null
   questions_asked: number
+  questions_limit: number | null
   flashcards_generated: number
+  flashcards_limit: number | null
   ai_explanations_used: number
-  storage_used_mb: number
+  ai_explanations_limit: number | null
 }
 
 export type QuotaCheck = {
   allowed: boolean
-  reason: string | null
+  reason?: string | null
   current_usage: number
   limit: number | null
-  upgrade_required: boolean
-  suggested_plan: string | null
+  upgrade_required?: boolean
+  suggested_plan?: string | null
 }
 
 export type DocumentDto = {
@@ -90,7 +93,7 @@ export type SummaryDto = {
   summary_text: string
   level: string
   created_at: string
-  metadata?: SummaryMetadata | null
+  summary_metadata?: SummaryMetadata | null
 }
 
 export type FlashcardDto = {
@@ -99,6 +102,20 @@ export type FlashcardDto = {
   question: string
   answer: string
   created_at: string
+}
+
+export type QuestionDto = {
+  id: number
+  user_id: number
+  document_id: number
+  question_text: string
+  answer_text: string
+  created_at: string
+}
+
+export type AskQuestionPayload = {
+  document_id: number
+  question_text: string
 }
 
 export type UploadResponse = DocumentDto & { text_preview?: string | null }
