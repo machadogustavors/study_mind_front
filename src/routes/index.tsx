@@ -6,6 +6,7 @@ import { ROUTES } from '@/constants/routes'
 import { GeneratedContentPage } from '@/pages/content/GeneratedContentPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { FlashcardsPage } from '@/pages/flashcards/FlashcardsPage'
+import { QuestionsPage } from '@/pages/questions/QuestionsPage'
 import { ProgressPage } from '@/pages/progress/ProgressPage'
 import { SettingsPage } from '@/pages/settings/SettingsPage'
 import { PlansPage } from '@/pages/settings/PlansPage'
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
           { path: 'documents/:documentId', element: <GeneratedContentPage /> },
           { path: 'study-plan', element: <StudyPlanPage /> },
           { path: 'flashcards', element: <FlashcardsPage /> },
+          { path: 'questions', element: <QuestionsPage /> },
           { path: 'progress', element: <ProgressPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'plans', element: <PlansPage /> },
