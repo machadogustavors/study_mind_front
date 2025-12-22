@@ -15,11 +15,11 @@ body {
 }
 
 .dark body {
-  @apply bg-gradient-to-b from-[#040712] via-[#061326] to-[#0d1f33] text-slate-100;
+  @apply bg-[#020202] text-slate-100;
 }
 
 .glass-panel {
-  @apply rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card backdrop-blur-lg dark:border-white/10 dark:bg-white/5;
+  @apply rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card backdrop-blur-lg dark:border-white/5 dark:bg-slate-900;
 }
 
 #root {

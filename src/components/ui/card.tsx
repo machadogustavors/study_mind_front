@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('glass-panel border-white/10 bg-white/5 dark:bg-white/5', className)} {...props} />
+  return <div className={cn('glass-panel border-white/10 bg-white/90 dark:border-white/5 dark:bg-slate-900', className)} {...props} />
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
