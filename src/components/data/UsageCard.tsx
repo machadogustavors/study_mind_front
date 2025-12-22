@@ -1,113 +1,159 @@
 import { useQuery } from '@tanstack/react-query'
 import { AlertCircle, CheckCircle, FileText, HelpCircle, Sparkles, Zap } from 'lucide-react'
 import React from 'react'
+import { Link } from 'react-router-dom'
 
-import { fetchUsageStats } from '@/services/subscriptions'
+import { ROUTES } from '@/constants/routes'
+import { fetchUserSubscription } from '@/services/subscriptions'
 import { useAuthStore } from '@/store/auth-store'
+import { Button } from '../ui/button'
 
 export function UsageCard() {
   const user = useAuthStore((s) => s.user)
-  const { data: usage } = useQuery({
-    queryKey: ['usage-stats'],
-    queryFn: fetchUsageStats,
+  const { data: subscription, isLoading, isError, error } = useQuery({
+    queryKey: ['user-subscription'],
+    queryFn: fetchUserSubscription,
     enabled: !!user,
   })
 
-  if (!usage) return null
+
+  React.useEffect(() => {
+    console.log('🔍 UsageCard Debug:', {
+      user: user?.email,
+      isLoading,
+      isError,
+      error: error?.message,
+      subscription,
+      usage: subscription?.usage,
+    })
+  }, [user, isLoading, isError, error, subscription])
+
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Uso do Plano</h3>
+        <p className="text-sm text-slate-500 dark:text-white/60">Carregando uso...</p>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Uso do Plano</h3>
+        <p className="text-sm text-red-600">Erro ao obter uso: {(error as any)?.message ?? 'unknown'}</p>
+      </div>
+    )
+  }
+
+  if (!subscription || !subscription.usage) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Uso do Plano</h3>
+        <p className="text-sm text-slate-500 dark:text-white/60">Nenhum dado de uso disponível.</p>
+      </div>
+    )
+  }
+
+  const usage = subscription.usage
 
   const resources = [
     {
       icon: FileText,
       label: 'Documentos',
-      current: usage.documents_uploaded,
-      limit: 1, // TODO: pegar do plano ativo
+      current: usage.documents_uploaded || 0,
+      limit: usage.documents_limit,
       color: 'blue',
     },
     {
       icon: HelpCircle,
-      label: 'Perguntas',
-      current: usage.questions_asked,
-      limit: 5,
+      label: 'Perguntas à IA',
+      current: usage.questions_asked || 0,
+      limit: usage.questions_limit,
       color: 'purple',
     },
     {
       icon: Zap,
       label: 'Flashcards',
-      current: usage.flashcards_generated,
-      limit: 10,
+      current: usage.flashcards_generated || 0,
+      limit: usage.flashcards_limit,
       color: 'yellow',
     },
     {
       icon: Sparkles,
-      label: 'Explicações IA',
-      current: usage.ai_explanations_used,
-      limit: 2,
+      label: 'Resumos com IA',
+      current: usage.ai_explanations_used || 0,
+      limit: usage.ai_explanations_limit,
       color: 'green',
     },
   ]
 
+  const hasReachedLimit = resources.some((r) => r.limit && r.current >= r.limit)
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-slate-900">
-        Uso do Plano FREE
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+        Uso do Plano {subscription.plan_name}
       </h3>
 
       <div className="space-y-4">
         {resources.map((resource) => {
-          const percentage = resource.limit
-            ? (resource.current / resource.limit) * 100
-            : 0
+          const percentage = resource.limit ? (resource.current / resource.limit) * 100 : 0
           const isNearLimit = percentage >= 80
-          const isAtLimit = percentage >= 100
+          const isAtLimit = resource.limit ? resource.current >= resource.limit : false
+          const isUnlimited = resource.limit === null
 
           const Icon = resource.icon
           const statusIcon = isAtLimit ? AlertCircle : isNearLimit ? AlertCircle : CheckCircle
-          const statusColor = isAtLimit
-            ? 'text-red-500'
-            : isNearLimit
-              ? 'text-orange-500'
-              : 'text-green-500'
+          const statusColor = isAtLimit ? 'text-red-500' : isNearLimit ? 'text-orange-500' : 'text-green-500'
+
+          const colorMap: Record<string, { text: string; bg: string }> = {
+            blue: { text: 'text-blue-500', bg: 'bg-blue-500' },
+            purple: { text: 'text-purple-500', bg: 'bg-purple-500' },
+            yellow: { text: 'text-yellow-500', bg: 'bg-yellow-500' },
+            green: { text: 'text-green-500', bg: 'bg-green-500' },
+          }
+          const colorClasses = colorMap[resource.color] ?? colorMap.blue
 
           return (
             <div key={resource.label}>
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Icon className={`h-4 w-4 text-${resource.color}-500`} />
-                  <span className="text-sm font-medium text-slate-700">
+                  <Icon className={`h-4 w-4 ${colorClasses.text}`} />
+                  <span className="text-sm font-medium text-slate-700 dark:text-white/70">
                     {resource.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-sm font-semibold text-slate-900">
-                    {resource.current}/{resource.limit}
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                    {isUnlimited ? `${resource.current}/∞` : `${resource.current}/${resource.limit}`}
                   </span>
-                  {React.createElement(statusIcon, {
+                  {!isUnlimited && React.createElement(statusIcon, {
                     className: `h-4 w-4 ${statusColor}`,
                   })}
                 </div>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    isAtLimit
-                      ? 'bg-red-500'
-                      : isNearLimit
-                        ? 'bg-orange-500'
-                        : `bg-${resource.color}-500`
-                  }`}
-                  style={{ width: `${Math.min(percentage, 100)}%` }}
-                />
-              </div>
+              {!isUnlimited && (
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                  <div
+                    className={`h-full rounded-full transition-all ${isAtLimit ? 'bg-red-500' : isNearLimit ? 'bg-orange-500' : colorClasses.bg}`}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                  />
+                </div>
+              )}
             </div>
           )
         })}
       </div>
 
-      {resources.some((r) => r.limit && r.current >= r.limit) && (
-        <div className="mt-4 rounded-lg bg-red-50 p-3">
-          <p className="text-xs font-medium text-red-700">
-            Você atingiu o limite do plano FREE. Faça upgrade para continuar!
+      {hasReachedLimit && (
+        <div className="mt-4 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
+          <p className="mb-2 text-xs font-medium text-red-700 dark:text-red-400">
+            Você atingiu o limite do seu plano. Faça upgrade para continuar!
           </p>
+          <Button asChild size="sm" className="w-full">
+            <Link to={ROUTES.plans}>Ver Planos</Link>
+          </Button>
         </div>
       )}
     </div>
