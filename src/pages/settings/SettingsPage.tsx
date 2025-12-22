@@ -1,8 +1,11 @@
+import { useQuery } from '@tanstack/react-query'
+
 import { useTheme } from '@/app/theme-provider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { fetchUserSubscription } from '@/services/subscriptions'
 import { useAuthStore } from '@/store/auth-store'
 import { usePreferencesStore } from '@/store/preferences-store'
 
@@ -10,6 +13,12 @@ export function SettingsPage() {
   const user = useAuthStore((state) => state.user)
   const { theme, setTheme } = useTheme()
   const { preferences, updatePreferences } = usePreferencesStore()
+
+  const { data: subscription } = useQuery({
+    queryKey: ['user-subscription'],
+    queryFn: fetchUserSubscription,
+    enabled: !!user,
+  })
 
   return (
     <section className="space-y-8">
@@ -31,7 +40,7 @@ export function SettingsPage() {
             </label>
             <label className="block text-sm font-semibold text-slate-600 dark:text-white/80">
               Plano
-              <Input value={user?.plan ?? 'free'} readOnly />
+              <Input value={subscription?.plan_name ?? 'Carregando...'} readOnly />
             </label>
           </CardContent>
         </Card>

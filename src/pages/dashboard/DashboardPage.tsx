@@ -1,6 +1,7 @@
 import { Loader2, UploadCloud } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+import { UsageCard } from '@/components/data/UsageCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -52,6 +53,8 @@ export function DashboardPage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">
+        <UsageCard />
+        
         <Card>
           <CardHeader>
             <CardTitle>Tarefas do dia</CardTitle>

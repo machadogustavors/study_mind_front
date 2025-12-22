@@ -8,6 +8,7 @@ export const ROUTES = {
   document: (id: number | string) => `/app/documents/${id}`,
   studyPlan: '/app/study-plan',
   flashcards: '/app/flashcards',
+  questions: '/app/questions',
   progress: '/app/progress',
   settings: '/app/settings',
   plans: '/app/plans',

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { BookOpenCheck, Gauge, Layers, Settings, Sparkles, UploadCloud, Zap } from 'lucide-react'
+import { BookOpenCheck, CreditCard, Gauge, Layers, MessageSquare, Settings, Sparkles, UploadCloud, Zap } from 'lucide-react'
 
 import { ROUTES } from '@/constants/routes'
 
@@ -8,7 +8,9 @@ const links = [
   { to: ROUTES.upload, label: 'Upload Center', icon: UploadCloud },
   { to: ROUTES.studyPlan, label: 'Plano de estudos', icon: Layers },
   { to: ROUTES.flashcards, label: 'Flashcards', icon: Sparkles },
+  { to: ROUTES.questions, label: 'Perguntas', icon: MessageSquare },
   { to: ROUTES.progress, label: 'Progresso', icon: Zap },
+  { to: ROUTES.plans, label: 'Ver Planos', icon: CreditCard },
   { to: ROUTES.settings, label: 'Configurações', icon: Settings },
 ]
 

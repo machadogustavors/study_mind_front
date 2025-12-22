@@ -27,58 +27,42 @@ function fromMetadata(metadata?: SummaryMetadata | null): SummaryInsights | null
 
 export function extractSummaryInsights(summary?: SummaryDto | null): SummaryInsights {
   if (!summary) return defaultInsights
-  const fromMeta = fromMetadata(summary.metadata)
-  if (fromMeta) return fromMeta
+  
+  const fromMeta = fromMetadata(summary.summary_metadata)
+  if (fromMeta) {
+    return fromMeta
+  }
 
   const bullets: string[] = []
   const questions: string[] = []
-  const flashcards: Array<{ question: string; answer: string }> = []
 
   const lines = summary.summary_text.split('\n').map((line) => line.trim())
-  let section: 'none' | 'bullets' | 'questions' | 'flashcards' = 'none'
+  
+  let inQuestionsSection = false
 
-  for (const rawLine of lines) {
-    const line = rawLine.trim()
+  for (const line of lines) {
     if (!line) continue
-    const normalized = line.toLowerCase()
-    if (normalized.startsWith('## principais') || normalized.startsWith('## pontos')) {
-      section = 'bullets'
+    
+    if (line.includes('## ❓') || line.includes('Perguntas de Revisão')) {
+      inQuestionsSection = true
       continue
     }
-    if (normalized.includes('perguntas de revisão')) {
-      section = 'questions'
+    
+    if (line.startsWith('##')) {
+      inQuestionsSection = false
       continue
     }
-    if (normalized.includes('flashcards')) {
-      section = 'flashcards'
-      continue
-    }
-
-    if (section === 'bullets' && line.startsWith('- ')) {
+    
+    if (line.startsWith('- ')) {
       bullets.push(line.slice(2).trim())
-      continue
     }
-
-    if (section === 'questions') {
-      const questionText = line.replace(/^\d+\.?\s*/, '').trim()
-      if (questionText) {
-        questions.push(questionText)
-      }
-      continue
-    }
-
-    if (section === 'flashcards') {
-      if (line.startsWith('- **Q:**')) {
-        const question = line.replace('- **Q:**', '').split('**A:**')[0]?.trim()
-        const answerMatch = line.split('**A:**')[1]?.trim()
-        if (question && answerMatch) {
-          flashcards.push({ question, answer: answerMatch })
-        }
-      } else if (line.startsWith('**Q:**')) {
-        const [questionPart, answerPart] = line.split('**A:**').map((part) => part.replace('**Q:**', '').trim())
-        if (questionPart && answerPart) {
-          flashcards.push({ question: questionPart, answer: answerPart })
-        }
+    
+    if (inQuestionsSection) {
+      const questionMatch = line.match(/^\d+\.\s*(.+)$/)
+      if (questionMatch) {
+        questions.push(questionMatch[1].trim())
+      } else if (line.startsWith('- ')) {
+        questions.push(line.slice(2).trim())
       }
     }
   }
@@ -86,7 +70,7 @@ export function extractSummaryInsights(summary?: SummaryDto | null): SummaryInsi
   return {
     bullets,
     questions,
-    flashcards,
+    flashcards: [],
   }
 }
 
