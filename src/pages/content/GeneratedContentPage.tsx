@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Loader2, RefreshCw, Sparkles, Wand2 } from 'lucide-react'
+import { Loader2, Sparkles, Wand2 } from 'lucide-react'
 import { useParams } from 'react-router-dom'
+import axios from 'axios'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { UpgradeModal } from '@/components/feedback/UpgradeModal'
 import { useFlashcardsQuery, useDocumentQuery, useSummariesQuery } from '@/hooks/useDocumentsQuery'
 import { useStudyPlanStore } from '@/store/study-plan-store'
+import { useQuotaCheck } from '@/hooks/useQuotaCheck'
 import { createSummary } from '@/services/summaries'
-import { generateFlashcards } from '@/services/flashcards'
 import type { CreateSummaryPayload } from '@/services/summaries'
 import { extractSummaryInsights, buildMindMapNodes } from '@/utils/summary'
 import { formatDate } from '@/utils/format'
@@ -28,6 +30,7 @@ export function GeneratedContentPage() {
   const [activeTab, setActiveTab] = useState('resumo')
 
   const { currentPlan, addTasksFromSummary, generatePlan } = useStudyPlanStore()
+  const { showUpgradeModal, setShowUpgradeModal } = useQuotaCheck()
 
   useEffect(() => {
     if (!selectedSummaryId && summariesQuery.data?.length) {
@@ -49,13 +52,10 @@ export function GeneratedContentPage() {
       await summariesQuery.refetch()
       setSelectedSummaryId(summary.id)
     },
-  })
-
-  const flashcardsMutation = useMutation({
-    mutationFn: () => generateFlashcards(selectedSummary?.id ?? 0, 8),
-    onSuccess: async () => {
-      await flashcardsQuery.refetch()
-      setActiveTab('flashcards')
+    onError: (error) => {
+      if (axios.isAxiosError(error) && error.response?.status === 402) {
+        setShowUpgradeModal(true)
+      }
     },
   })
 
@@ -88,6 +88,13 @@ export function GeneratedContentPage() {
 
   return (
     <section className="space-y-8">
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        resourceType="resumos"
+        currentPlan="FREE"
+      />
+      
       <header className="space-y-3">
         <p className="text-xs uppercase tracking-widest text-slate-500 dark:text-white/60">Conteúdo gerado</p>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -159,10 +166,6 @@ export function GeneratedContentPage() {
 
             <TabsContent value="flashcards">
               <div className="mb-4 flex flex-wrap gap-3">
-                <Button variant="secondary" onClick={() => flashcardsMutation.mutate()} disabled={!selectedSummary || flashcardsMutation.isPending}>
-                  {flashcardsMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                  Regenerar flashcards
-                </Button>
                 <Button variant="outline" onClick={() => setActiveTab('questoes')}>
                   Ver questões
                 </Button>
@@ -177,7 +180,7 @@ export function GeneratedContentPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-slate-500 dark:text-white/70">Nenhum flashcard gerado ainda.</p>
+                <p className="text-sm text-slate-500 dark:text-white/70">Nenhum flashcard disponível. Gere um resumo para criar flashcards automaticamente.</p>
               )}
             </TabsContent>
 
@@ -197,21 +200,21 @@ export function GeneratedContentPage() {
 
             <TabsContent value="mapa">
               {mindMapNodes.length ? (
-                <div className="relative mx-auto h-[360px] w-full max-w-xl rounded-full border border-dashed border-slate-200 dark:border-white/15">
-                  <div className="absolute left-1/2 top-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand-500 text-center text-sm font-semibold text-white shadow-lg">
-                    Tema principal
+                <div className="relative mx-auto h-[500px] w-full max-w-3xl rounded-full border border-dashed border-slate-200 dark:border-white/15">
+                  <div className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand-500 p-3 text-center text-xs font-semibold leading-tight text-white shadow-lg">
+                    {document.filename.replace(/\.[^/.]+$/, '')}
                   </div>
                   {mindMapNodes.map((node) => (
                     <div
                       key={node.id}
-                      className="absolute flex h-20 w-20 items-center justify-center rounded-2xl border border-brand-200 bg-white/80 p-3 text-center text-xs font-semibold text-brand-800 shadow-sm dark:border-white/20 dark:bg-white/5 dark:text-white"
+                      className="absolute flex h-auto min-h-[6rem] w-40 items-center justify-center overflow-hidden rounded-2xl border border-brand-200 bg-white/80 p-3 text-center text-[11px] font-medium leading-snug text-brand-800 shadow-sm dark:border-white/20 dark:bg-white/5 dark:text-white"
                       style={{
-                        left: `${50 + 38 * Math.cos((node.angle * Math.PI) / 180)}%`,
-                        top: `${50 + 38 * Math.sin((node.angle * Math.PI) / 180)}%`,
+                        left: `${50 + 40 * Math.cos((node.angle * Math.PI) / 180)}%`,
+                        top: `${50 + 40 * Math.sin((node.angle * Math.PI) / 180)}%`,
                         transform: 'translate(-50%, -50%)',
                       }}
                     >
-                      {node.label}
+                      <span className="break-words">{node.label}</span>
                     </div>
                   ))}
                 </div>

@@ -2,17 +2,20 @@ import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Clipboard, ClipboardCheck, FileText, LinkIcon, Loader2, UploadCloud } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
+import { UpgradeModal } from '@/components/feedback/UpgradeModal'
+import { PageTransition } from '@/components/navigation/PageTransition'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ROUTES } from '@/constants/routes'
 import { useInvalidateDocuments } from '@/hooks/useDocumentsQuery'
+import { useQuotaCheck } from '@/hooks/useQuotaCheck'
 import { getDocument, uploadDocument } from '@/services/documents'
 import type { DocumentDto, UploadResponse } from '@/types/api'
 import { formatDate } from '@/utils/format'
-import { PageTransition } from '@/components/navigation/PageTransition'
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'error'
 
@@ -24,6 +27,7 @@ export function UploadCenterPage() {
   const [copied, setCopied] = useState(false)
 
   const invalidateDocuments = useInvalidateDocuments()
+  const { checkResourceQuota, showUpgradeModal, setShowUpgradeModal, quotaResource } = useQuotaCheck()
 
   const uploadMutation = useMutation({
     mutationFn: uploadDocument,
@@ -32,7 +36,10 @@ export function UploadCenterPage() {
       setUploadedDoc(data)
       setStatus(data.text_content ? 'completed' : 'processing')
     },
-    onError: () => setStatus('error'),
+    onError: (error: any) => {
+      setStatus('error')
+      toast.error(error.response?.data?.detail || 'Erro ao fazer upload')
+    },
   })
 
   const pollingQuery = useQuery({
@@ -59,21 +66,39 @@ export function UploadCenterPage() {
     [status],
   )
 
-  const handleFileUpload = (files: FileList | null) => {
+  const handleFileUpload = async (files: FileList | null) => {
     if (!files?.length) return
+    
+    const quotaCheck = await checkResourceQuota('document')
+    if (!quotaCheck.allowed) {
+      return
+    }
+    
     uploadMutation.mutate(files[0])
   }
 
-  const handleTextSubmit = () => {
+  const handleTextSubmit = async () => {
     if (!textInput.trim()) return
+    
+    const quotaCheck = await checkResourceQuota('document')
+    if (!quotaCheck.allowed) {
+      return
+    }
+    
     const blob = new Blob([textInput], { type: 'text/plain' })
     const file = new File([blob], `texto-${Date.now()}.txt`, { type: 'text/plain' })
     uploadMutation.mutate(file)
     setTextInput('')
   }
 
-  const handleLinkSubmit = () => {
+  const handleLinkSubmit = async () => {
     if (!linkInput.trim()) return
+    
+    const quotaCheck = await checkResourceQuota('document')
+    if (!quotaCheck.allowed) {
+      return
+    }
+    
     const content = `Link indicado pelo aluno: ${linkInput}`
     const blob = new Blob([content], { type: 'text/plain' })
     const file = new File([blob], `referencia-${Date.now()}.txt`, { type: 'text/plain' })
@@ -223,6 +248,12 @@ export function UploadCenterPage() {
           </CardContent>
         </Card>
       </div>
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        resourceType={quotaResource}
+      />
     </section>
     </PageTransition>
   )
