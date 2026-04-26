@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# Study Mind — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend da aplicação Study Mind: interface web construída com React + TypeScript e Vite, usando Tailwind CSS para estilos. Este repositório contém a aplicação que consome a API do backend (`study_mind_back`) e fornece as funcionalidades para criação de planos de estudo, upload de documentos, geração de flashcards e gestão de assinaturas.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Autenticação:** cadastro, login e gerenciamento de perfil.
+- **Upload de documentos:** envie PDFs e outros documentos para extrair conteúdo.
+- **Extração e processamento:** extração de texto dos documentos para indexação e análise.
+- **Geração de planos de estudo:** crie planos de estudo personalizados a partir do conteúdo dos documentos.
+- **Geração de flashcards:** transforme trechos em flashcards para revisão ativa.
+- **Sumários e resumos:** gerar resumos automáticos por documento ou seção.
+- **Perguntas e prática:** criar e responder questões geradas a partir do conteúdo.
+- **Painel de progresso:** acompanhamento de progresso, métricas e histórico de estudos.
+- **Assinaturas e pagamentos:** integração com o backend para gerenciar planos pagos (Stripe).
+- **Responsividade:** interface adaptada para desktop e mobile.
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Vite
+- React
+- TypeScript
+- Tailwind CSS
 
-## Expanding the ESLint configuration
+Arquivos importantes:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [vite.config.ts](vite.config.ts) — configuração do Vite.
+- [tailwind.config.ts](tailwind.config.ts) — configuração do Tailwind.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Rodando em desenvolvimento
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Instale dependências e inicie o servidor de desenvolvimento:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Build de produção e preview:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
 ```
+
+## Variáveis de ambiente
+
+Copie e configure as variáveis necessárias em `src/config/env.ts` (ou no arquivo de ambiente usado pelo projeto). Tipicamente você precisará apontar a URL da API do backend e chaves de serviço (ex.: Stripe).
+
+## Estrutura principal
+
+- `src/` — código da aplicação.
+- `src/pages/` — páginas principais (landing, dashboard, estudo, upload, etc.).
+- `src/components/` — componentes reutilizáveis.
+- `src/services/` — chamadas à API e integrações.
+
+---
